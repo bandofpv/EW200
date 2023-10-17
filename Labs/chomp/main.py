@@ -1,16 +1,15 @@
-# Example file showing a basic pygame "game loop"
 import pygame
 
 # pygame setup
 pygame.init()
-WIDTH = 500
-HEIGHT = 500
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+WIDTH = 500 # screen width
+HEIGHT = 500 #screen height
+screen = pygame.display.set_mode((WIDTH, HEIGHT)) # create screen object
 running = True
 
-background = pygame.Surface((WIDTH, HEIGHT))
-background.fill((66, 35, 223))
-pygame.draw.rect(background, (215,233,123), (0,WIDTH-100, WIDTH, 100))
+background = pygame.Surface((WIDTH, HEIGHT)) # create surface object
+background.fill((66, 35, 223)) # fill the surface with blue
+pygame.draw.rect(background, (255, 231, 143), (0,WIDTH-100, WIDTH, 100)) # draw sand on background surface
 screen.blit(background, (0,0))
 
 while running:
