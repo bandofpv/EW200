@@ -1,5 +1,5 @@
 import pygame
-from Sprites import *
+from sprites import *
 
 # pygame setup
 pygame.init()
