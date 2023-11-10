@@ -27,22 +27,23 @@ def build_platform(x, y, size, length, platform_group, screen):
 
 
 class Timer:
-    def __init__(self, screen):
+    def __init__(self, game_time, screen):
         self.game_font = pygame.font.Font('assets/fonts/rush.otf', 120)
         self.text = self.game_font.render('Hi', 1, (255, 0, 0))
         self.rect = self.text.get_rect()
         self.rect.midtop = screen.get_rect().midtop
         self.time = pygame.time.get_ticks()
         self.start_time = pygame.time.get_ticks()
+        self.game_time = game_time * 1000
         self.screen = screen
         self.play = True
 
     def update(self):
-        timer = (6000 + self.start_time) - self.time
+        timer = (self.game_time + self.start_time) - self.time
         if timer > 0:
             self.time = pygame.time.get_ticks()
         else:
-            self.time = 6000
+            self.time = self.game_time
             self.play = False
         self.text = self.game_font.render(str(int(timer/1000)), 1, (255, 0, 0))
         self.rect = self.text.get_rect()
@@ -50,21 +51,6 @@ class Timer:
 
     def draw(self):
         self.screen.blit(self.text, self.rect)
-
-
-# class Menu:
-#     def __init__(self, screen):
-#         self.screen = screen
-#         self.game_font = pygame.font.Font('assets/fonts/rush.otf', 60)
-#         self.text = self.game_font.render('100 Play Again', 1, (255, 255, 0))
-#         self.rect = self.text.get_rect()
-#         self.rect.center = self.screen.get_rect().center
-#
-#     def update(self):
-#         pass
-#
-#     def draw(self):
-#         self.screen.blit(self.text, self.rect)
 
 
 def start_menu(screen, game_events):
@@ -79,28 +65,47 @@ def start_menu(screen, game_events):
                 return True
 
 
-def play_again(screen, game_events, it):
-    green, blue = it
-    game_font = pygame.font.Font('assets/fonts/rush.otf', 60)
-    button_text = game_font.render('Play Again', 1, (255, 255, 255))
+def play_again(screen, game_events, it, font_size):
+    button_font = pygame.font.Font('assets/fonts/rush.otf', font_size)
+    button_text = button_font.render('Play Again', 1, (255, 255, 255))
+    if text_collide(button_text.get_rect(center=screen.get_rect().center), font_size):
+        button_font = pygame.font.Font('assets/fonts/rush.otf', int(font_size*1.05))
+        button_text = button_font.render('Play Again', 1, (255, 255, 255))
+        for event in game_events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                return True
     button_rect = button_text.get_rect()
     button_rect.center = screen.get_rect().center
     screen.blit(button_text, button_rect)
-
+    winner_font = pygame.font.Font('assets/fonts/rush.otf', int(font_size * 0.7))
+    green, blue = it
     if green:
-        winner_text = game_font.render('Blue Wins', 1, (0, 0, 255))
-        winner_rect = winner_text.get_rect()
-        winner_rect.center = screen.get_rect().center
-        screen.blit(winner_text, winner_rect)
+        winner_text = winner_font.render('Blue Wins', 1, (0, 0, 255))
     else:
-        winner_text = game_font.render('Green Wins', 1, (0, 255, 0))
-        winner_rect = winner_text.get_rect()
-        winner_rect.center = screen.get_rect().center
-        screen.blit(winner_text, winner_rect)
-    for event in game_events:
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if button_rect.collidepoint(pygame.mouse.get_pos()):
+        winner_text = winner_font.render('Green Wins', 1, (0, 255, 0))
+    winner_rect = winner_text.get_rect()
+    winner_rect.center = (screen.get_width()/2, (screen.get_height()/2) - (font_size*0.7 + 70))
+    screen.blit(winner_text, winner_rect)
+
+
+def text_collide(rect, font_size):
+    rect.height = font_size * 0.85
+    if rect.collidepoint(pygame.mouse.get_pos()):
+        return True
+
+
+def quit_button(screen, game_events, font_size):
+    quit_font = pygame.font.Font('assets/fonts/rush.otf', font_size)
+    quit_text = quit_font.render('Quit', 1, (255, 255, 255))
+    quit_rect = quit_text.get_rect()
+    quit_rect.height = font_size
+    quit_rect.center = (screen.get_width() / 2, (screen.get_height() / 2) + (70 + font_size))
+    if text_collide(quit_rect, font_size):
+        quit_text = quit_font.render('Quit', 1, (255, 0, 0))
+        for event in game_events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 return True
+    screen.blit(quit_text, quit_rect)
 
 
 def build_level(size, platform_group, screen):

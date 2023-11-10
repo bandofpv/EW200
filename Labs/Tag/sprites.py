@@ -7,19 +7,20 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.color = color
         self.it = it
-        self.it_body = pygame.image.load('assets/images/red_body.png')
+        self.it_body = pygame.image.load(f'assets/images/{self.color}_it_body.png')
         self.it_body = pygame.transform.smoothscale(self.it_body, size)
         self.body = pygame.image.load(f'assets/images/{self.color}_body.png')
         self.body = pygame.transform.smoothscale(self.body, size)
         self.image = self.body
         self.pause = False
+        self.speed = 3
         if self.it:
             self.image = self.it_body
             self.pause = True
+            self.speed = 4
         self.rect = self.image.get_rect()
-        self.rect.center = [x, y]
+        self.rect.center = (x, y)
         self.timer = pygame.time.get_ticks()
-        self.speed = 3
         self.xvelocity, self.yvelocity = 0, 0
         self.right_key, self.left_key, self.up_key = keys
         self.jumpvelocity = -15
@@ -36,11 +37,13 @@ class Player(pygame.sprite.Sprite):
             self.image = self.it_body
             self.it = True
             self.pause = True
+            self.speed = 4
             self.timer = update_time
         if opponent_collide and self.it and (update_time - self.timer) > 3000:
             self.image = self.body
             self.it = False
             self.pause = False
+            self.speed = 3
             self.timer = update_time
         if (update_time - self.timer) > 3000:
             self.pause = False
@@ -72,9 +75,9 @@ class Player(pygame.sprite.Sprite):
         self.rect.move_ip(self.xvelocity, self.yvelocity)
 
     def touch(self, x, y, platforms):
-        self.rect.move_ip([x, y])
+        self.rect.move_ip((x, y))
         collide = pygame.sprite.spritecollideany(self, platforms)
-        self.rect.move_ip([-x, -y])
+        self.rect.move_ip((-x, -y))
         return collide
 
     def draw(self, screen):
@@ -87,7 +90,7 @@ class Platform(pygame.sprite.Sprite):
         self.image = pygame.image.load(f'assets/images/tile_{side}.png')
         self.image = pygame.transform.smoothscale(self.image, size)
         self.rect = self.image.get_rect()
-        self.rect.topleft = [x, y]
+        self.rect.topleft = (x, y)
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
