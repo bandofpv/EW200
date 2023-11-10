@@ -67,9 +67,9 @@ class Timer:
 #         self.screen.blit(self.text, self.rect)
 
 
-def play_again(screen, game_events):
+def start_menu(screen, game_events):
     game_font = pygame.font.Font('assets/fonts/rush.otf', 60)
-    text = game_font.render('100 Play Again', 1, (255, 255, 0))
+    text = game_font.render('Play', 1, (255, 255, 255))
     rect = text.get_rect()
     rect.center = screen.get_rect().center
     screen.blit(text, rect)
@@ -78,5 +78,34 @@ def play_again(screen, game_events):
             if rect.collidepoint(pygame.mouse.get_pos()):
                 return True
 
-# def start_game(screen):
-#
+
+def play_again(screen, game_events, it):
+    green, blue = it
+    game_font = pygame.font.Font('assets/fonts/rush.otf', 60)
+    button_text = game_font.render('Play Again', 1, (255, 255, 255))
+    button_rect = button_text.get_rect()
+    button_rect.center = screen.get_rect().center
+    screen.blit(button_text, button_rect)
+
+    if green:
+        winner_text = game_font.render('Blue Wins', 1, (0, 0, 255))
+        winner_rect = winner_text.get_rect()
+        winner_rect.center = screen.get_rect().center
+        screen.blit(winner_text, winner_rect)
+    else:
+        winner_text = game_font.render('Green Wins', 1, (0, 255, 0))
+        winner_rect = winner_text.get_rect()
+        winner_rect.center = screen.get_rect().center
+        screen.blit(winner_text, winner_rect)
+    for event in game_events:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if button_rect.collidepoint(pygame.mouse.get_pos()):
+                return True
+
+
+def build_level(size, platform_group, screen):
+    build_platform(600, 500, size, 300, platform_group, screen)
+    build_platform(400, 400, size, 200, platform_group, screen)
+    build_platform(200, 300, size, 200, platform_group, screen)
+    build_platform(700, 200, size, 8000, platform_group, screen)
+
