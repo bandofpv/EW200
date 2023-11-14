@@ -14,39 +14,54 @@ class Player(pygame.sprite.Sprite):
         self.image = self.body
         self.pause = False
         self.speed = 3
-        if self.it:
-            self.image = self.it_body
-            self.pause = True
-            self.speed = 4
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
-        self.timer = pygame.time.get_ticks()
+        self.collide_timer = pygame.time.get_ticks()
+        self.collectable_timer = pygame.time.get_ticks()
+        self.collected = False
         self.xvelocity, self.yvelocity = 0, 0
         self.right_key, self.left_key, self.up_key = keys
         self.jumpvelocity = -15
         self.fallvelocity = 10
+        if self.it:
+            self.image = self.it_body
+            self.pause = True
+            self.speed = 4
+            self.jumpvelocity = -16
 
-    def update(self, platforms, opponent):
+    def update(self, platforms, opponent, collectable_group):
+        opponent_collide = pygame.Rect.colliderect(self.rect, opponent.rect)
+        current_time = pygame.time.get_ticks()
+        if opponent_collide and (current_time - self.collide_timer) > 3000:
+            if self.it:
+                self.it = False
+                self.pause = False
+                self.speed = 3
+                self.jumpvelocity = -15
+                self.collide_timer = current_time
+                self.image = self.body
+            else:
+                self.it = True
+                self.pause = True
+                self.speed = 4
+                self.jumpvelocity = -16
+                self.collide_timer = current_time
+                self.image = self.it_body
+        # elif opponent_collide and self.it and (current_time - self.collide_timer) > 3000:
+        #     self.it = False
+        #     self.pause = False
+        #     self.speed = 3
+        #     self.collide_timer = current_time
+        if (current_time - self.collide_timer) > 3000:
+            self.pause = False
+        # if self.it:
+        #     self.image = self.it_body
+        # else:
+        #     self.image = self.body
         top_collide = self.touch(0, self.yvelocity, platforms)
         bottom_collide = self.touch(0, self.fallvelocity, platforms)
         right_collide = self.touch(self.speed, 0, platforms)
         left_collide = self.touch(-self.speed, 0, platforms)
-        opponent_collide = pygame.Rect.colliderect(self.rect, opponent.rect)
-        update_time = pygame.time.get_ticks()
-        if opponent_collide and not self.it and (update_time - self.timer) > 3000:
-            self.image = self.it_body
-            self.it = True
-            self.pause = True
-            self.speed = 4
-            self.timer = update_time
-        if opponent_collide and self.it and (update_time - self.timer) > 3000:
-            self.image = self.body
-            self.it = False
-            self.pause = False
-            self.speed = 3
-            self.timer = update_time
-        if (update_time - self.timer) > 3000:
-            self.pause = False
         self.xvelocity = 0
         key = pygame.key.get_pressed()
         if key[self.left_key]:
@@ -74,6 +89,18 @@ class Player(pygame.sprite.Sprite):
             self.yvelocity = 0
         self.rect.move_ip(self.xvelocity, self.yvelocity)
 
+        collectable = pygame.sprite.spritecollideany(self, collectable_group)
+        if collectable and not self.it:
+            collectable.kill()
+            self.collected = True
+            self.speed = 5
+            self.jumpvelocity = -17
+            self.collectable_timer = current_time
+        if self.collected and (current_time - self.collectable_timer) > 3000:
+            self.collected = False
+            self.speed = 3
+            self.jumpvelocity = -15
+
     def touch(self, x, y, platforms):
         self.rect.move_ip((x, y))
         collide = pygame.sprite.spritecollideany(self, platforms)
@@ -89,6 +116,18 @@ class Platform(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load(f'assets/images/tile_{side}.png')
         self.image = pygame.transform.smoothscale(self.image, size)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+
+
+class Collectable(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.image.load(f'assets/images/tile_exclamation.png')
+        self.image = pygame.transform.smoothscale(self.image, [25, 25])
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
 

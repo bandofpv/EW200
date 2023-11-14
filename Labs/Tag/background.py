@@ -1,4 +1,6 @@
 import pygame
+from pygame import *
+import pygame.freetype
 from sprites import *
 
 
@@ -53,16 +55,18 @@ class Timer:
         self.screen.blit(self.text, self.rect)
 
 
-def start_menu(screen, game_events):
-    game_font = pygame.font.Font('assets/fonts/rush.otf', 60)
-    text = game_font.render('Play', 1, (255, 255, 255))
-    rect = text.get_rect()
-    rect.center = screen.get_rect().center
-    screen.blit(text, rect)
-    for event in game_events:
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if rect.collidepoint(pygame.mouse.get_pos()):
+def start_menu(screen, game_events, font_size):
+    button_font = pygame.font.Font('assets/fonts/rush.otf', font_size)
+    button_text = button_font.render('Play', 1, (255, 255, 255))
+    if text_collide(button_text.get_rect(center=screen.get_rect().center), font_size):
+        button_font = pygame.font.Font('assets/fonts/rush.otf', int(font_size*1.1))
+        button_text = button_font.render('Play', 1, (255, 255, 255))
+        for e in game_events:
+            if e.type == pygame.MOUSEBUTTONDOWN:
                 return True
+    button_rect = button_text.get_rect()
+    button_rect.center = screen.get_rect().center
+    screen.blit(button_text, button_rect)
 
 
 def play_again(screen, game_events, it, font_size):
@@ -71,8 +75,8 @@ def play_again(screen, game_events, it, font_size):
     if text_collide(button_text.get_rect(center=screen.get_rect().center), font_size):
         button_font = pygame.font.Font('assets/fonts/rush.otf', int(font_size*1.05))
         button_text = button_font.render('Play Again', 1, (255, 255, 255))
-        for event in game_events:
-            if event.type == pygame.MOUSEBUTTONDOWN:
+        for e in game_events:
+            if e.type == pygame.MOUSEBUTTONDOWN:
                 return True
     button_rect = button_text.get_rect()
     button_rect.center = screen.get_rect().center
@@ -88,9 +92,9 @@ def play_again(screen, game_events, it, font_size):
     screen.blit(winner_text, winner_rect)
 
 
-def text_collide(rect, font_size):
-    rect.height = font_size * 0.85
-    if rect.collidepoint(pygame.mouse.get_pos()):
+def text_collide(text_rect, font_size):
+    text_rect.height = font_size * 0.85
+    if text_rect.collidepoint(pygame.mouse.get_pos()):
         return True
 
 
@@ -99,11 +103,11 @@ def quit_button(screen, game_events, font_size):
     quit_text = quit_font.render('Quit', 1, (255, 255, 255))
     quit_rect = quit_text.get_rect()
     quit_rect.height = font_size
-    quit_rect.center = (screen.get_width() / 2, (screen.get_height() / 2) + (70 + font_size))
+    quit_rect.center = (screen.get_width() / 2, (screen.get_height() / 2) + (60 + font_size))
     if text_collide(quit_rect, font_size):
         quit_text = quit_font.render('Quit', 1, (255, 0, 0))
-        for event in game_events:
-            if event.type == pygame.MOUSEBUTTONDOWN:
+        for e in game_events:
+            if e.type == pygame.MOUSEBUTTONDOWN:
                 return True
     screen.blit(quit_text, quit_rect)
 
@@ -114,3 +118,16 @@ def build_level(size, platform_group, screen):
     build_platform(200, 300, size, 200, platform_group, screen)
     build_platform(700, 200, size, 8000, platform_group, screen)
 
+
+def display_mouse(visible, game_events):
+    for e in game_events:
+        if e.type == pygame.KEYDOWN:
+            if e.key == pygame.K_ESCAPE and not visible:
+                return True
+        elif e.type == pygame.MOUSEMOTION and not visible:
+            return True
+        elif e.type == pygame.MOUSEBUTTONDOWN and visible:
+            return False
+    if visible:
+        return True
+    return False

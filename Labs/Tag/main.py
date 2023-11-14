@@ -1,5 +1,5 @@
 import pygame
-from sprites import *
+
 from background import *
 
 # pygame setup
@@ -8,7 +8,7 @@ clock = pygame.time.Clock()
 
 WIDTH = 1080  # screen width
 HEIGHT = 608  # screen height
-screen = pygame.display.set_mode((WIDTH,HEIGHT))  # create screen object
+screen = pygame.display.set_mode((WIDTH, HEIGHT))  # create screen object
 
 block_size = (25, 25)
 game_time = 60
@@ -22,11 +22,16 @@ platforms = pygame.sprite.Group()
 build_border(screen, block_size, platforms)
 build_level(block_size, platforms, screen)
 
+collectables = pygame.sprite.Group()
+collectables.add(Collectable(500, 500))
+collectables.add(Collectable(400, 500))
+
 game_timer = Timer(game_time, screen)
 
 running = True
 play = True
 started = False
+show_mouse = False
 
 while running:
 
@@ -41,7 +46,7 @@ while running:
             running = False
 
     if not started:
-        started = start_menu(screen, game_events)
+        started = start_menu(screen, game_events, 120)
         if started:
             player1 = Player(100, 400, block_size, 'green', arrow_keys, True)
             player2 = Player(200, 400, block_size, 'blue', wasd_keys, False)
@@ -51,11 +56,15 @@ while running:
 
     else:
         if play:
-            player1.update(platforms, player2)
-            player2.update(platforms, player1)
+            show_mouse = display_mouse(show_mouse, game_events)
+            pygame.mouse.set_visible(show_mouse)
+
+            player1.update(platforms, player2, collectables)
+            player2.update(platforms, player1, collectables)
             game_timer.update()
 
-            # RENDER YOUR GAME HERE
+            collectables.draw(screen)
+
             player1.draw(screen)
             player2.draw(screen)
             platforms.draw(screen)
@@ -64,6 +73,7 @@ while running:
             play = game_timer.play
 
         else:
+            pygame.mouse.set_visible(True)
             play = play_again(screen, game_events, (player1.it, player2.it), 100)
             if quit_button(screen, game_events, 50):
                 running = False
@@ -76,6 +86,7 @@ while running:
                 build_border(screen, block_size, platforms)
                 build_level(block_size, platforms, screen)
                 game_timer = Timer(game_time, screen)
+                show_mouse = False
 
     # flip() the display to put your work on screen
     pygame.display.flip()
