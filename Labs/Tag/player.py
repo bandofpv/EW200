@@ -1,7 +1,6 @@
 import pygame
 
 
-# define a class called Player
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, size, color, keys, it):
         super().__init__()
@@ -81,6 +80,9 @@ class Player(pygame.sprite.Sprite):
         if self.yvelocity > 0 and bottom_collide:
             self.rect.bottom = bottom_collide.rect.top
             self.yvelocity = 0
+        if bottom_collide:
+            self.xvelocity = bottom_collide.speed
+            print('oof')
         if self.yvelocity < 0 and top_collide:
             self.rect.top = top_collide.rect.bottom
             self.yvelocity = 0
@@ -106,42 +108,6 @@ class Player(pygame.sprite.Sprite):
         collide = pygame.sprite.spritecollideany(self, platforms)
         self.rect.move_ip((-x, -y))
         return collide
-
-    def draw(self, screen):
-        screen.blit(self.image, self.rect)
-
-
-class Platform(pygame.sprite.Sprite):
-    def __init__(self, x, y, size, side):
-        """Creates Platform Sprite.
-
-        Note:
-            Uses top left corner convention for tile position.
-
-        Args:
-            x (int): x-axis location to place Platform Sprite.
-            y (int): y-axis location to place Platform Sprite.
-            size (tuple[int, int]): Tuple[width, height] of Platform tile size.
-            side (str): String ('center', 'left', or 'right') of Platform tile side.
-
-        """
-        super().__init__()
-        self.image = pygame.image.load(f'assets/images/tile_{side}.png')
-        self.image = pygame.transform.smoothscale(self.image, size)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
-
-    def draw(self, screen):
-        screen.blit(self.image, self.rect)
-
-
-class Collectable(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = pygame.image.load(f'assets/images/tile_exclamation.png')
-        self.image = pygame.transform.smoothscale(self.image, [25, 25])
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)

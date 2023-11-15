@@ -1,5 +1,8 @@
 import pygame
-
+from player import Player
+#from collectable import Collectable
+from timer import Timer
+from button import Button
 from background import *
 
 # pygame setup
@@ -11,7 +14,7 @@ HEIGHT = 608  # screen height
 screen = pygame.display.set_mode((WIDTH, HEIGHT))  # create screen surface
 
 block_size = (25, 25)
-game_time = 1
+game_time = 20
 
 arrow_keys = (pygame.K_RIGHT, pygame.K_LEFT, pygame.K_UP)
 wasd_keys = (pygame.K_d, pygame.K_a, pygame.K_w)
@@ -34,6 +37,9 @@ started = False
 show_mouse = False
 
 start_button = Button(screen.get_rect().center, 'Play', 120, 'white', screen)
+play_again_button = Button(screen.get_rect().center, 'Play Again', 100, 'white', screen)
+screen_centerx, screen_centery = screen.get_rect().centerx, screen.get_rect().centery
+quit_button = Button((screen_centerx, screen_centery + 145), 'Quit', 60, 'white', screen)
 
 while running:
 
@@ -48,9 +54,7 @@ while running:
             running = False
 
     if not started:
-        started = start_button.click(game_events, 1.1, 'red')
-        # start_button.draw()
-        #started = start_screen(screen, game_events, 120)
+        started = start_button.click(game_events, 1.1)
         if started:
             player1 = Player(100, 400, block_size, 'green', arrow_keys, True)
             player2 = Player(200, 400, block_size, 'blue', wasd_keys, False)
@@ -65,6 +69,7 @@ while running:
 
             player1.update(platforms, player2, collectables)
             player2.update(platforms, player1, collectables)
+            platforms.update()
             game_timer.update()
 
             collectables.draw(screen)
@@ -78,8 +83,9 @@ while running:
 
         else:
             pygame.mouse.set_visible(True)
-            play = play_again(screen, game_events, (player1.it, player2.it), 100)
-            if quit_button(screen, game_events, 50):
+            play = play_again_button.click(game_events, 1.05)
+            display_winner(screen, player1, player2, 100)
+            if quit_button.click(game_events, font_color='red'):
                 running = False
             player1.kill()
             player2.kill()
@@ -92,7 +98,6 @@ while running:
                 game_timer = Timer(game_time, screen)
                 show_mouse = False
 
-    # flip() the display to put your work on screen
     pygame.display.flip()
     clock.tick(60)
 

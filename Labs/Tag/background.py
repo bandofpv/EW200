@@ -1,7 +1,7 @@
 import pygame
-from pygame import *
 import pygame.freetype
-from sprites import *
+from platform import Platform, MovingPlatform
+from collectable import Collectable
 
 
 def build_border(screen, size, platform_group):
@@ -29,7 +29,7 @@ def build_border(screen, size, platform_group):
         platform_group.add(Platform(screen_width, y, size, 'center'))  # right edge
 
 
-def build_platform(x, y, size, length, platform_group, screen):
+def build_platform(x, y, size, length, platform_group, screen, speed=None):
     """Builds Platform of given `length`.
 
     This function creates multiple Platform Sprites to take up a given horizontal length and adds it to the given Sprite
@@ -44,142 +44,47 @@ def build_platform(x, y, size, length, platform_group, screen):
         screen (pygame.Surface): Surface of display screen.
 
     """
-    platform_width = size[0]
-    screen_width = screen.get_width()
-    if x + length > screen_width:
-        length -= ((x + length) - screen_width)
-    for i in range(x+platform_width, x+length-platform_width, platform_width):
-        platform_group.add(Platform(i, y, size, 'center'))
-    platform_group.add(Platform(x, y, size, 'left'))
-    platform_group.add(Platform(x+length-platform_width, y, size, 'right'))
+    if speed:
+        platform_width = size[0]
+        screen_width = screen.get_width()
+        if x + length > screen_width:
+            length -= ((x + length) - screen_width)
+        for i in range(x + platform_width, x + length - platform_width, platform_width):
+            platform_group.add(MovingPlatform(i, y, size, 'center', speed))
+        platform_group.add(MovingPlatform(x, y, size, 'left', speed))
+        platform_group.add(MovingPlatform(x + length - platform_width, y, size, 'right', speed))
+    else:
+        platform_width = size[0]
+        screen_width = screen.get_width()
+        if x + length > screen_width:
+            length -= ((x + length) - screen_width)
+        for i in range(x+platform_width, x+length-platform_width, platform_width):
+            platform_group.add(Platform(i, y, size, 'center'))
+        platform_group.add(Platform(x, y, size, 'left'))
+        platform_group.add(Platform(x+length-platform_width, y, size, 'right'))
 
 
-def start_screen(screen, game_events, font_size):
-    """Displays Start Screen.
+def display_winner(screen, player1, player2, font_size):
+    """Displays winner of the game.
 
-    Displays a 'Play' button at center of display screen.
+    Displays the Player who is not `it` as the winner at top of screen and in the `color` of the Player.
 
     Args:
         screen (pygame.Surface): Surface of display screen.
-        game_events (list): Pygame event list.
+        player1 (Player): Instance of first player.
+        player2 (Player): Instance of second player.
         font_size (int): Size of font.
 
-    Returns:
-        bool: True if clicked on 'Play' button, False if otherwise.
-
     """
-    if button_collide(screen.get_rect().center, 'Play', font_size, screen, 1.1):
-        for e in game_events:
-            if e.type == pygame.MOUSEBUTTONDOWN:  # If mouse click, return True
-                return True
-
-
-def play_again(screen, game_events, it, font_size):
-    """Displays Play Again Screen.
-
-    Displays 'Play Again' button and announces winner.
-
-    Args:
-        screen (pygame.Surface): Surface of display screen.
-        game_events (list): Pygame event list.
-        it (tuple[bool, bool]): Tuple(green, blue) of green and blue Player `it` attributes. True if it, False if not it.
-        font_size (int): Size of int.
-
-    Returns:
-        bool: True if clicked on 'Play Again' button, False if otherwise.
-
-    """
-    # If mouse cursor collides with 'Play Again' button located at the center of the screen
-    if button_collide(screen.get_rect().center, 'Play Again', font_size, screen, 1.05):
-        for e in game_events:
-            if e.type == pygame.MOUSEBUTTONDOWN:  # If mouse click, return True
-                return True
     winner_font = pygame.font.Font('assets/fonts/rush.otf', int(font_size * 0.7))
-    green, blue = it
-    if green:  # If green is it, display 'Blue Wins'
-        winner_text = winner_font.render('Blue Wins', 1, 'blue')
-    else:  # If blue is it, display 'Green Wins'
-        winner_text = winner_font.render('Green Wins', 1, 'green')
+    if player1.it:  # If player1 is it, player2 wins
+        winner_text = winner_font.render(f'{player2.color.title()} Wins', 1, f'{player2.color}')
+    else:  # If player2 is it, player1 wins
+        winner_text = winner_font.render(f'{player1.color.title()} Wins', 1, f'{player1.color}')
     winner_rect = winner_text.get_rect()
     # Display winner_text at center top of display screen
     winner_rect.center = (screen.get_rect().centerx, screen.get_rect().centery - 130)
     screen.blit(winner_text, winner_rect)
-
-
-def text_collision_rect(center, title, font_size):
-    button_font = pygame.font.Font('assets/fonts/rush.otf', font_size)
-    button_text = button_font.render(title, 1, (255, 255, 255))
-    button_rect = button_text.get_rect()
-    glyph_rect = pygame.mask.from_surface(button_text).get_bounding_rects()[0]
-    offset = glyph_rect.top - button_rect.top
-    collision_rect = pygame.Rect(0, 0, button_rect.width, glyph_rect.height)
-    collision_rect.center = center
-    return collision_rect, offset
-
-
-def button_collide(center, title, font_size, screen, scale=1.0, swap_color='white'):
-    button_font = pygame.font.Font('assets/fonts/rush.otf', font_size)
-    button_text = button_font.render(title, 1, 'white')
-    button_rect = button_text.get_rect()
-    collision_rect, offset = text_collision_rect(center, title, font_size)
-    if collision_rect.collidepoint(pygame.mouse.get_pos()):
-        button_font = pygame.font.Font('assets/fonts/rush.otf', int(font_size * scale))
-        button_text = button_font.render(title, 1, swap_color)
-        button_rect = button_text.get_rect()
-        collision_rect, offset = text_collision_rect(center, title, int(font_size * scale))
-        button_rect.midtop = (collision_rect.centerx, collision_rect.top)
-        button_rect.top -= offset
-        screen.blit(button_text, button_rect)
-        return True
-    button_rect.midtop = (collision_rect.centerx, collision_rect.top)
-    button_rect.top -= offset
-    screen.blit(button_text, button_rect)
-
-
-class Button:
-    def __init__(self, center, title, font_size, font_color, screen):
-        self.center = center
-        self.title = title
-        self.font_size = font_size
-        self.font_color = font_color
-        self.screen = screen
-        self.font = pygame.font.Font('assets/fonts/rush.otf', self.font_size)
-        self.text = self.font.render(title, 1, self.font_color)
-        self.rect = self.text.get_rect(center=center)
-        self.collision_rect = pygame.Rect(0, 0, 0, 0)
-
-    def calc(self):
-        calc_rect = pygame.Rect((0, 0), (self.rect.width, self.rect.height))
-        glyph_rect = pygame.mask.from_surface(self.text).get_bounding_rects()[0]
-        offset = glyph_rect.top - calc_rect.top
-        self.collision_rect = pygame.Rect(0, 0, self.rect.width, glyph_rect.height)
-        self.collision_rect.center = self.center
-        self.rect.midtop = (self.collision_rect.centerx, self.collision_rect.top)
-        self.rect.top -= offset
-
-    def click(self, game_events, scale, font_color='white'):
-        if self.collision_rect.collidepoint(pygame.mouse.get_pos()):
-            self.font = pygame.font.Font('assets/fonts/rush.otf', int(self.font_size * scale))
-            self.text = self.font.render(self.title, 1, font_color)
-            self.rect = self.text.get_rect(center=self.center)
-            self.calc()
-            for e in game_events:
-                if e.type == pygame.MOUSEBUTTONDOWN:  # If mouse click, return True
-                    return True
-        else:
-            self.font = pygame.font.Font('assets/fonts/rush.otf', self.font_size)
-            self.text = self.font.render(self.title, 1, self.font_color)
-            self.rect = self.text.get_rect(center=self.center)
-            self.calc()
-        self.screen.blit(self.text, self.rect)
-
-
-def quit_button(screen, game_events, font_size):
-    x, y = screen.get_rect().centerx, screen.get_rect().centery + 140
-    if button_collide((x, y), 'Quit', font_size, screen, swap_color='Red'):
-        for e in game_events:
-            if e.type == pygame.MOUSEBUTTONDOWN:  # If mouse click, return True
-                return True
 
 
 def build_level(size, platform_group, screen):
@@ -187,6 +92,7 @@ def build_level(size, platform_group, screen):
     build_platform(400, 400, size, 200, platform_group, screen)
     build_platform(200, 300, size, 200, platform_group, screen)
     build_platform(700, 200, size, 8000, platform_group, screen)
+    build_platform(0, 200, size, 80, platform_group, screen, 1)
 
 
 def display_mouse(visible, game_events):
@@ -201,30 +107,3 @@ def display_mouse(visible, game_events):
     if visible:
         return True
     return False
-
-
-class Timer:
-    def __init__(self, game_time, screen):
-        self.game_font = pygame.font.Font('assets/fonts/rush.otf', 120)
-        self.text = self.game_font.render('Hi', 1, (255, 0, 0))
-        self.rect = self.text.get_rect()
-        self.rect.midtop = screen.get_rect().midtop
-        self.time = pygame.time.get_ticks()
-        self.start_time = pygame.time.get_ticks()
-        self.game_time = game_time * 1000
-        self.screen = screen
-        self.play = True
-
-    def update(self):
-        timer = (self.game_time + self.start_time) - self.time
-        if timer > 0:
-            self.time = pygame.time.get_ticks()
-        else:
-            self.time = self.game_time
-            self.play = False
-        self.text = self.game_font.render(str(int(timer/1000)), 1, (255, 0, 0))
-        self.rect = self.text.get_rect()
-        self.rect.midtop = self.screen.get_rect().midtop
-
-    def draw(self):
-        self.screen.blit(self.text, self.rect)
