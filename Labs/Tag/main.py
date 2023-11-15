@@ -8,10 +8,10 @@ clock = pygame.time.Clock()
 
 WIDTH = 1080  # screen width
 HEIGHT = 608  # screen height
-screen = pygame.display.set_mode((WIDTH, HEIGHT))  # create screen object
+screen = pygame.display.set_mode((WIDTH, HEIGHT))  # create screen surface
 
 block_size = (25, 25)
-game_time = 60
+game_time = 1
 
 arrow_keys = (pygame.K_RIGHT, pygame.K_LEFT, pygame.K_UP)
 wasd_keys = (pygame.K_d, pygame.K_a, pygame.K_w)
@@ -33,6 +33,8 @@ play = True
 started = False
 show_mouse = False
 
+start_button = Button(screen.get_rect().center, 'Play', 120, 'white', screen)
+
 while running:
 
     screen.fill('black')
@@ -46,7 +48,9 @@ while running:
             running = False
 
     if not started:
-        started = start_menu(screen, game_events, 120)
+        started = start_button.click(game_events, 1.1, 'red')
+        # start_button.draw()
+        #started = start_screen(screen, game_events, 120)
         if started:
             player1 = Player(100, 400, block_size, 'green', arrow_keys, True)
             player2 = Player(200, 400, block_size, 'blue', wasd_keys, False)

@@ -113,6 +113,18 @@ class Player(pygame.sprite.Sprite):
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, x, y, size, side):
+        """Creates Platform Sprite.
+
+        Note:
+            Uses top left corner convention for tile position.
+
+        Args:
+            x (int): x-axis location to place Platform Sprite.
+            y (int): y-axis location to place Platform Sprite.
+            size (tuple[int, int]): Tuple[width, height] of Platform tile size.
+            side (str): String ('center', 'left', or 'right') of Platform tile side.
+
+        """
         super().__init__()
         self.image = pygame.image.load(f'assets/images/tile_{side}.png')
         self.image = pygame.transform.smoothscale(self.image, size)
