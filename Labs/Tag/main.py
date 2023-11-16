@@ -1,6 +1,8 @@
+# TODO: Finish writing comments for all python files
+
 import pygame
 from player import Player
-#from collectable import Collectable
+#from collectible import Collectible
 from timer import Timer
 from button import Button
 from background import *
@@ -12,9 +14,10 @@ clock = pygame.time.Clock()
 WIDTH = 1080  # screen width
 HEIGHT = 608  # screen height
 screen = pygame.display.set_mode((WIDTH, HEIGHT))  # create screen surface
+pygame.display.set_caption('TAG!')
 
 block_size = (25, 25)
-game_time = 20
+game_time = 60
 
 arrow_keys = (pygame.K_RIGHT, pygame.K_LEFT, pygame.K_UP)
 wasd_keys = (pygame.K_d, pygame.K_a, pygame.K_w)
@@ -25,16 +28,16 @@ platforms = pygame.sprite.Group()
 build_border(screen, block_size, platforms)
 build_level(block_size, platforms, screen)
 
-collectables = pygame.sprite.Group()
-collectables.add(Collectable(500, 500))
-collectables.add(Collectable(400, 500))
+collectibles = pygame.sprite.Group()
+collectibles.add(Collectible(500, 500))
+collectibles.add(Collectible(400, 500))
 
 game_timer = Timer(game_time, screen)
 
 running = True
 play = True
 started = False
-show_mouse = False
+show_cursor = False
 
 start_button = Button(screen.get_rect().center, 'Play', 120, 'white', screen)
 play_again_button = Button(screen.get_rect().center, 'Play Again', 100, 'white', screen)
@@ -64,15 +67,15 @@ while running:
 
     else:
         if play:
-            show_mouse = display_mouse(show_mouse, game_events)
-            pygame.mouse.set_visible(show_mouse)
+            show_cursor = display_cursor(show_cursor, game_events)
+            pygame.mouse.set_visible(show_cursor)
 
-            player1.update(platforms, player2, collectables)
-            player2.update(platforms, player1, collectables)
+            player1.update(platforms, player2, collectibles)
+            player2.update(platforms, player1, collectibles)
             platforms.update()
             game_timer.update()
 
-            collectables.draw(screen)
+            collectibles.draw(screen)
 
             player1.draw(screen)
             player2.draw(screen)
@@ -96,7 +99,7 @@ while running:
                 build_border(screen, block_size, platforms)
                 build_level(block_size, platforms, screen)
                 game_timer = Timer(game_time, screen)
-                show_mouse = False
+                show_cursor = False
 
     pygame.display.flip()
     clock.tick(60)

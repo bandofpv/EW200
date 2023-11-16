@@ -1,3 +1,5 @@
+# TODO: Finish MovingPlatform class (add side to side capabilities)
+
 import pygame
 
 
@@ -9,8 +11,8 @@ class Platform(pygame.sprite.Sprite):
             Uses top left corner convention for tile position.
 
         Args:
-            x (int): x-axis location to place Platform Sprite.
-            y (int): y-axis location to place Platform Sprite.
+            x (int): x-axis location of Platform Sprite.
+            y (int): y-axis location of Platform Sprite.
             size (tuple[int, int]): Tuple[width, height] of Platform tile size.
             side (str): String ('center', 'left', or 'right') of Platform tile side.
 
@@ -23,6 +25,11 @@ class Platform(pygame.sprite.Sprite):
         self.speed = 0
 
     def draw(self, screen):
+        """Draws the Platform Sprite on the `screen` Surface.
+
+        Args:
+            screen (pygame.Surface): pygame.Surface of the screen to draw the Platform Sprite on.
+        """
         screen.blit(self.image, self.rect)
 
 
