@@ -1,5 +1,3 @@
-# TODO: Change font from white to red for last 10 seconds of the game
-
 import pygame
 
 
@@ -11,7 +9,7 @@ class Timer:
             game_time (int): Length of game in seconds.
             screen (pygame.Surface): pygame.Surface of the `screen` to draw the remaining time left in game.
         """
-        self.game_font = pygame.font.Font('assets/fonts/rush.otf', 120)
+        self.game_font = pygame.font.Font('assets/fonts/rush.otf', 100)
         self.text = self.game_font.render('Hi', 1, (255, 0, 0))
         self.rect = self.text.get_rect()
         self.rect.midtop = screen.get_rect().midtop
@@ -20,6 +18,7 @@ class Timer:
         self.game_time = game_time * 1000
         self.screen = screen
         self.play = True
+        self.color = 'white'
 
     def update(self):
         """Updates the remaining time left in game.
@@ -28,10 +27,12 @@ class Timer:
         timer = (self.game_time + self.start_time) - self.time
         if timer > 0:
             self.time = pygame.time.get_ticks()
+            self.color = 'white'
+            if timer < 11000:
+                self.color = 'red'
         else:
-            self.time = self.game_time
             self.play = False
-        self.text = self.game_font.render(str(int(timer/1000)), 1, (255, 0, 0))
+        self.text = self.game_font.render(str(int(timer/1000)), 1, self.color)
         self.rect = self.text.get_rect()
         self.rect.midtop = self.screen.get_rect().midtop
 

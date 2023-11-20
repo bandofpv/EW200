@@ -31,7 +31,7 @@ def build_border(screen, size, platform_group):
         platform_group.add(Platform(screen_width, y, size, 'center'))  # right edge
 
 
-def build_platform(x, y, size, length, platform_group, screen, speed=0):
+def build_platform(x, y, size, length, platform_group, screen, speed=0, move_time=0, direction=None):
     """Builds Platform of given `length`.
 
     This function creates multiple Platform Sprites to take up a given horizontal length and adds it to the given Sprite
@@ -53,18 +53,19 @@ def build_platform(x, y, size, length, platform_group, screen, speed=0):
         if x + length > screen_width:
             length -= ((x + length) - screen_width)
         for i in range(x + platform_width, x + length - platform_width, platform_width):
-            platform_group.add(MovingPlatform(i, y, size, 'center', speed))
-        platform_group.add(MovingPlatform(x, y, size, 'left', speed))
-        platform_group.add(MovingPlatform(x + length - platform_width, y, size, 'right', speed))
+            platform_group.add(MovingPlatform(i, y, size, 'center', speed, move_time, direction))
+        platform_group.add(MovingPlatform(x, y, size, 'left', speed, move_time, direction))
+        platform_group.add(MovingPlatform(x + length - platform_width, y, size, 'right', speed, move_time,
+                                          direction))
     else:
         platform_width = size[0]
         screen_width = screen.get_width()
         if x + length > screen_width:
             length -= ((x + length) - screen_width)
-        for i in range(x+platform_width, x+length-platform_width, platform_width):
+        for i in range(x + platform_width, x + length - platform_width, platform_width):
             platform_group.add(Platform(i, y, size, 'center'))
         platform_group.add(Platform(x, y, size, 'left'))
-        platform_group.add(Platform(x+length-platform_width, y, size, 'right'))
+        platform_group.add(Platform(x + length - platform_width, y, size, 'right'))
 
 
 def display_winner(screen, player1, player2, font_size):
@@ -105,8 +106,8 @@ def build_level(size, platform_group, screen):
     build_platform(200, 300, size, 200, platform_group, screen)
     build_platform(700, 200, size, 8000, platform_group, screen)
     build_platform(100, 550, size, 80, platform_group, screen)
-    build_platform(0, 200, size, 80, platform_group, screen, 1)
-    build_platform(0, 560, size, 100, platform_group, screen, 1)
+    build_platform(0, 500, size, 80, platform_group, screen, 3, 1000, 'right')
+    build_platform(500, 550, size, 50, platform_group, screen, 1, 3000, 'left')
 
 
 def display_cursor(visible, game_events):
@@ -134,3 +135,13 @@ def display_cursor(visible, game_events):
     if visible:
         return True
     return False
+
+
+def build_game(size, platform_group, screen):
+    screen_width = screen.get_width()
+    screen_height = screen.get_height()
+    platform_width = size[0]
+    platform_height = size[1]
+    for y in range(screen_height - platform_height - 100, 0, -100):
+        build_platform(600, y, size, 300, platform_group, screen)
+    build_platform(600, 560, size, 300, platform_group, screen)

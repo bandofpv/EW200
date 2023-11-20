@@ -1,4 +1,4 @@
-# TODO: Finish MovingPlatform class (add side to side capabilities)
+# TODO: Finish MovingPlatform class
 
 import pygame
 
@@ -22,7 +22,7 @@ class Platform(pygame.sprite.Sprite):
         self.image = pygame.transform.smoothscale(self.image, size)
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
-        self.speed = 0
+        self.xvelocity = 0
 
     def draw(self, screen):
         """Draws the Platform Sprite on the `screen` Surface.
@@ -34,9 +34,32 @@ class Platform(pygame.sprite.Sprite):
 
 
 class MovingPlatform(Platform):
-    def __init__(self, x, y, size, side, speed):
+    def __init__(self, x, y, size, side, speed, move_time, direction):
         super().__init__(x, y, size, side)
         self.speed = speed
+        self.xvelocity = self.speed
+        self.move_time = move_time
+        self.time = pygame.time.get_ticks()
+        self.start_time = pygame.time.get_ticks()
+        self.direction = direction
+
+    def move_right(self):
+        self.xvelocity = self.speed
+        self.rect.move_ip(self.speed, 0)
+
+    def move_left(self):
+        self.xvelocity = -self.speed
+        self.rect.move_ip(-self.speed, 0)
 
     def update(self):
-        self.rect.move_ip(self.speed, 0)
+        self.time = pygame.time.get_ticks()
+        if self.direction == 'right':
+            self.move_right()
+            if self.time - self.start_time > self.move_time:
+                self.direction = 'left'
+                self.start_time = self.time
+        else:
+            self.move_left()
+            if self.time - self.start_time > self.move_time:
+                self.direction = 'right'
+                self.start_time = self.time

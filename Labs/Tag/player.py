@@ -1,4 +1,4 @@
-# TODO: Finish update and calc_collision descriptions after adding moving platform capabilities and optimizing collision
+# TODO: Finish update and calc_collision descriptions
 
 
 import pygame
@@ -89,11 +89,6 @@ class Player(pygame.sprite.Sprite):
                 self.rect.left = left_collide.rect.right
             elif not left_collide:
                 self.xvelocity -= self.speed
-        if left_collide:
-            self.xvelocity += left_collide.speed
-            print(self.xvelocity)
-
-
         if key[self.right_key]:
             if right_collide and self.yvelocity == 0:
                 self.rect.right = right_collide.rect.left
@@ -107,8 +102,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = bottom_collide.rect.top
             self.yvelocity = 0
         if bottom_collide:
-            self.xvelocity += bottom_collide.speed
-            #print('oof')
+            self.xvelocity += bottom_collide.xvelocity
         if self.yvelocity < 0 and top_collide:
             self.rect.top = top_collide.rect.bottom
             self.yvelocity = 0

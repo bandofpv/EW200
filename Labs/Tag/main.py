@@ -21,12 +21,8 @@ game_time = 60
 
 arrow_keys = (pygame.K_RIGHT, pygame.K_LEFT, pygame.K_UP)
 wasd_keys = (pygame.K_d, pygame.K_a, pygame.K_w)
-player1 = Player(100, 400, block_size, 'green', arrow_keys, True)
-player2 = Player(200, 400, block_size, 'blue', wasd_keys, False)
 
 platforms = pygame.sprite.Group()
-build_border(screen, block_size, platforms)
-build_level(block_size, platforms, screen)
 
 collectibles = pygame.sprite.Group()
 collectibles.add(Collectible(500, 500))
@@ -62,7 +58,8 @@ while running:
             player1 = Player(100, 400, block_size, 'green', arrow_keys, True)
             player2 = Player(200, 400, block_size, 'blue', wasd_keys, False)
             build_border(screen, block_size, platforms)
-            build_level(block_size, platforms, screen)
+            #build_level(block_size, platforms, screen)
+            build_game(block_size, platforms, screen)
             game_timer = Timer(game_time, screen)
 
     else:
@@ -77,10 +74,10 @@ while running:
 
             collectibles.draw(screen)
 
+            game_timer.draw()
             player1.draw(screen)
             player2.draw(screen)
             platforms.draw(screen)
-            game_timer.draw()
 
             play = game_timer.play
 
@@ -97,7 +94,8 @@ while running:
                 player1 = Player(100, 400, block_size, 'green', arrow_keys, True)
                 player2 = Player(200, 400, block_size, 'blue', wasd_keys, False)
                 build_border(screen, block_size, platforms)
-                build_level(block_size, platforms, screen)
+                #build_level(block_size, platforms, screen)
+                build_game(block_size, platforms, screen)
                 game_timer = Timer(game_time, screen)
                 show_cursor = False
 
