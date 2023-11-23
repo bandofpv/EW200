@@ -7,17 +7,20 @@ from timer import Timer
 from button import Button
 from background import *
 
+from platform import Plat
+
 # pygame setup
 pygame.init()
 clock = pygame.time.Clock()
 
 WIDTH = 1080  # screen width
-HEIGHT = 608  # screen height
+HEIGHT = 620  # screen height
 screen = pygame.display.set_mode((WIDTH, HEIGHT))  # create screen surface
+# TODO: (0, 0), pygame.FULLSCREEN AND Change text size for menus
 pygame.display.set_caption('TAG!')
 
 block_size = (25, 25)
-game_time = 60
+game_time = 5
 
 arrow_keys = (pygame.K_RIGHT, pygame.K_LEFT, pygame.K_UP)
 wasd_keys = (pygame.K_d, pygame.K_a, pygame.K_w)
@@ -39,6 +42,8 @@ start_button = Button(screen.get_rect().center, 'Play', 120, 'white', screen)
 play_again_button = Button(screen.get_rect().center, 'Play Again', 100, 'white', screen)
 screen_centerx, screen_centery = screen.get_rect().centerx, screen.get_rect().centery
 quit_button = Button((screen_centerx, screen_centery + 145), 'Quit', 60, 'white', screen)
+
+# my_plat = Plat(400, 200, (25, 25), 100, 3, 1000, 'right', screen)
 
 while running:
 
@@ -80,6 +85,8 @@ while running:
             platforms.draw(screen)
 
             play = game_timer.play
+
+            # my_plat.draw()
 
         else:
             pygame.mouse.set_visible(True)

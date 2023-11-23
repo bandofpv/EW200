@@ -1,4 +1,4 @@
-# TODO: Finish MovingPlatform class
+# TODO: Finish MovingPlatform class description AND change the picture too?
 
 import pygame
 
@@ -33,9 +33,13 @@ class Platform(pygame.sprite.Sprite):
         screen.blit(self.image, self.rect)
 
 
-class MovingPlatform(Platform):
+class MovingPlatform(pygame.sprite.Sprite):
     def __init__(self, x, y, size, side, speed, move_time, direction):
-        super().__init__(x, y, size, side)
+        super().__init__()
+        self.image = pygame.image.load(f'assets/images/tile_half_{side}.png')
+        self.image = pygame.transform.smoothscale(self.image, size)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
         self.speed = speed
         self.xvelocity = self.speed
         self.move_time = move_time
@@ -63,3 +67,32 @@ class MovingPlatform(Platform):
             if self.time - self.start_time > self.move_time:
                 self.direction = 'right'
                 self.start_time = self.time
+
+
+class Plat(pygame.sprite.Sprite):
+    def __init__(self, x, y, size, length, speed, move_time, direction, screen):
+        super().__init__()
+        self.x = x
+        self.y = y
+        self.rect = pygame.Rect(x, y, 0, 0)
+        self.size = size
+        self.length = length
+        self.speed = speed
+        self.move_time = move_time
+        self.direction = direction
+        self.screen = screen
+        self.group = pygame.sprite.Group()
+
+        platform_width = size[0]
+        for i in range(x + platform_width, x + length - platform_width, platform_width):
+            self.group.add(Platform(i, y, size, 'center'))
+        self.group.add(Platform(x, y, size, 'left'))
+        self.group.add(Platform(x + length - platform_width, y, size, 'right'))
+
+    def update(self):
+        pass
+
+    def draw(self):
+        for platform in self.group:
+            self.screen.blit(platform, self.rect)
+

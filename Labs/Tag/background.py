@@ -4,6 +4,7 @@ import pygame
 import pygame.freetype
 from platform import Platform, MovingPlatform
 from collectible import Collectible
+from random import randrange, triangular, normalvariate, weibullvariate, randint, choice
 
 
 def build_border(screen, size, platform_group):
@@ -59,9 +60,9 @@ def build_platform(x, y, size, length, platform_group, screen, speed=0, move_tim
                                           direction))
     else:
         platform_width = size[0]
-        screen_width = screen.get_width()
-        if x + length > screen_width:
-            length -= ((x + length) - screen_width)
+        # screen_width = screen.get_width()
+        # if x + length > screen_width:
+        #     length -= ((x + length) - screen_width)
         for i in range(x + platform_width, x + length - platform_width, platform_width):
             platform_group.add(Platform(i, y, size, 'center'))
         platform_group.add(Platform(x, y, size, 'left'))
@@ -137,11 +138,109 @@ def display_cursor(visible, game_events):
     return False
 
 
+def calc_length(length, speed, move_time):
+    return length + speed * (move_time/1000)
+
+
 def build_game(size, platform_group, screen):
     screen_width = screen.get_width()
     screen_height = screen.get_height()
     platform_width = size[0]
     platform_height = size[1]
-    for y in range(screen_height - platform_height - 100, 0, -100):
-        build_platform(600, y, size, 300, platform_group, screen)
-    build_platform(600, 560, size, 300, platform_group, screen)
+    # for y in range(screen_height - platform_height - 100, 0, -100):
+    #     build_platform(600, y, size, 300, platform_group, screen)
+    # build_platform(220, screen_height - platform_height - 100, size, 300, platform_group, screen)
+    # build_platform(200, screen_height - platform_height - 200, size, 100, platform_group, screen)
+    #build_platform(220+300, screen_height - platform_height - 120, size, 300, platform_group, screen)
+
+    #build_platform(500, 95, size, 100, platform_group, screen)
+
+    #build_platform(100, 50, (int(size[0]/2), int(size[1]/2)), 100, platform_group, screen, 1, 1000, 'right')
+
+    # TODO: While loop
+    # start_height = normalvariate(90, 10)
+    # height = screen_height - platform_height - start_height
+    # start_height = 95
+    # height = start_height
+    # rand_height = normalvariate(90, 10)
+    # while True:
+    #     rand_height = normalvariate(90, 10)
+    #
+    #     first_plat = True
+    #     count = 0
+    #     while 0 <= count < screen_width:
+    #         spacing = randrange(50, 100, 5)
+    #         length = round(normalvariate(200, 100))
+    #         length = 50 if length < 50 else 400 if length > 400 else length
+    #         if round(triangular(0, 1, 0.75)) and first_plat:
+    #             build_platform(0 - platform_width, height, size, length, platform_group, screen)
+    #             count += length - platform_width
+    #         else:
+    #             build_platform(count + spacing, height, size, length, platform_group, screen)
+    #             count += spacing + length
+    #         first_plat = False
+    #     if height > screen_height - platform_height - 60:
+    #         break
+    #     height += rand_height
+
+    # for y in range(screen_height - platform_height - 100, 0, -100):
+    #     first_plat = True
+    #     count = 0
+    #     while 0 <= count < screen_width:
+    #         spacing = randrange(50, 100, 5)
+    #         length = round(normalvariate(200, 100))
+    #         length = 50 if length < 50 else 400 if length > 400 else length
+    #         if round(triangular(0, 1, 0.75)) and first_plat:
+    #             build_platform(0 - platform_width, y, size, length, platform_group, screen)
+    #             count += length - platform_width
+    #         else:
+    #             build_platform(count + spacing, y, size, length, platform_group, screen)
+    #             count += spacing + length
+    #         first_plat = False
+
+    count = 0
+    while 0 <= count < screen_width:
+        spacing = randrange(50, 100, 5)
+        speed = int(triangular(0, 2, 0))
+        moving_time = 1000
+        direction = choice(['right', 'left'])
+        if speed:
+            length = round(normalvariate(100, 20))
+            length = 50 if length < 50 else 150 if length > 150 else length
+            build_platform(count + spacing, 100, size, length, platform_group, screen, speed, moving_time//speed,
+                           direction)
+        else:
+            length = round(normalvariate(200, 100))
+            length = 50 if length < 50 else 400 if length > 400 else length
+            build_platform(count + spacing, 100, size, length, platform_group, screen)
+        count += spacing + length
+        print(speed)
+
+    for y in range(0, screen_height, 50):
+        mod_platform(500, y, size, 100, platform_group, screen, 2, 1000/2, 'right')
+    build_platform(500, 550, size, 100, platform_group, screen, 1, 1000, 'right')
+    build_platform(500, 500, size, 100, platform_group, screen, 2, 1000/2, 'right')
+
+
+# TODO: random y spacing too.
+def mod_platform(x, y, size, length, platform_group, screen, speed=0, move_time=0, direction=None):
+    if speed:
+        platform_width = size[0]
+        interval = platform_width - size[1]//2
+        screen_width = screen.get_width()
+        if x + length > screen_width:
+            length -= ((x + length) - screen_width)
+        for i in range(x + platform_width, x + length - platform_width, interval):
+            platform_group.add(MovingPlatform(i, y, size, 'center', speed, move_time, direction))
+        platform_group.add(MovingPlatform(x, y, size, 'left', speed, move_time, direction))
+        platform_group.add(MovingPlatform(x + length - platform_width, y, size, 'right', speed, move_time,
+                                          direction))
+    else:
+        platform_width = size[0]
+        # screen_width = screen.get_width()
+        # if x + length > screen_width:
+        #     length -= ((x + length) - screen_width)
+        for i in range(x + platform_width, x + length - platform_width, platform_width):
+            platform_group.add(Platform(i, y, size, 'center'))
+        platform_group.add(Platform(x, y, size, 'left'))
+        platform_group.add(Platform(x + length - platform_width, y, size, 'right'))
