@@ -13,8 +13,8 @@ class Timer:
         self.text = self.game_font.render('Hi', 1, (255, 0, 0))
         self.rect = self.text.get_rect()
         self.rect.midtop = screen.get_rect().midtop
-        self.time = pygame.time.get_ticks()
         self.start_time = pygame.time.get_ticks()
+        self.time = pygame.time.get_ticks()
         self.game_time = game_time * 1000
         self.screen = screen
         self.play = True

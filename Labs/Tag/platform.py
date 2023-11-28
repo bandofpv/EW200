@@ -1,4 +1,4 @@
-# TODO: Finish MovingPlatform class description AND change the picture too?
+# TODO: Finish MovingPlatform class description
 
 import pygame
 

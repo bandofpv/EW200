@@ -1,3 +1,5 @@
+# TODO: Randomize location of collectable and set it on a timer to kill itself
+
 import pygame
 
 
@@ -14,6 +16,11 @@ class Collectible(pygame.sprite.Sprite):
         self.image = pygame.transform.smoothscale(self.image, [25, 25])
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
+        self.start_time = pygame.time.get_ticks()
+        self.time = pygame.time.get_ticks()
+
+    def update(self):
+        pass
 
     def draw(self, screen):
         """Draws the Collectible Sprite on the `screen` Surface.

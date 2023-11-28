@@ -6,6 +6,7 @@ from player import Player
 from timer import Timer
 from button import Button
 from background import *
+from random import choice
 
 from platform import Plat
 
@@ -25,6 +26,10 @@ game_time = 5
 arrow_keys = (pygame.K_RIGHT, pygame.K_LEFT, pygame.K_UP)
 wasd_keys = (pygame.K_d, pygame.K_a, pygame.K_w)
 
+it = choice([True, False])
+player1 = Player(screen.get_width() // 3, screen.get_height() - 50, block_size, 'green', wasd_keys, it)
+player2 = Player(2 * screen.get_width() // 3, screen.get_height() - 50, block_size, 'blue', arrow_keys, not it)
+
 platforms = pygame.sprite.Group()
 
 collectibles = pygame.sprite.Group()
@@ -43,8 +48,6 @@ play_again_button = Button(screen.get_rect().center, 'Play Again', 100, 'white',
 screen_centerx, screen_centery = screen.get_rect().centerx, screen.get_rect().centery
 quit_button = Button((screen_centerx, screen_centery + 145), 'Quit', 60, 'white', screen)
 
-# my_plat = Plat(400, 200, (25, 25), 100, 3, 1000, 'right', screen)
-
 while running:
 
     screen.fill('black')
@@ -60,10 +63,7 @@ while running:
     if not started:
         started = start_button.click(game_events, 1.1)
         if started:
-            player1 = Player(100, 400, block_size, 'green', arrow_keys, True)
-            player2 = Player(200, 400, block_size, 'blue', wasd_keys, False)
             build_border(screen, block_size, platforms)
-            #build_level(block_size, platforms, screen)
             build_game(block_size, platforms, screen)
             game_timer = Timer(game_time, screen)
 
@@ -86,8 +86,6 @@ while running:
 
             play = game_timer.play
 
-            # my_plat.draw()
-
         else:
             pygame.mouse.set_visible(True)
             play = play_again_button.click(game_events, 1.05)
@@ -98,10 +96,12 @@ while running:
             player2.kill()
             [platform.kill() for platform in platforms]
             if play:
-                player1 = Player(100, 400, block_size, 'green', arrow_keys, True)
-                player2 = Player(200, 400, block_size, 'blue', wasd_keys, False)
+                it = choice([True, False])
+                player1 = Player(screen.get_width() // 3, screen.get_height() - 50, block_size, 'green',
+                                 wasd_keys, it)
+                player2 = Player(2 * screen.get_width() // 3, screen.get_height() - 50, block_size, 'blue',
+                                 arrow_keys, not it)
                 build_border(screen, block_size, platforms)
-                #build_level(block_size, platforms, screen)
                 build_game(block_size, platforms, screen)
                 game_timer = Timer(game_time, screen)
                 show_cursor = False
