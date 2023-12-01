@@ -32,11 +32,14 @@ def build_border(screen, size, platform_group):
         platform_group.add(Platform(screen_width, y, size, 'center'))  # right edge
 
 
-def build_platform(x, y, size, length, platform_group):
+def static_platform(x, y, size, length, platform_group):
     """Builds Platform of given `length`.
 
-    This function creates multiple Platform Sprites to take up a given horizontal length and adds it to the given Sprite
-    Group. The top left corner of the Platform is located on the given `x`, `y` location.
+    This function creates multiple Platform Sprites to take up a given horizontal length and adds it to the given 
+    `platform_group`.
+    
+    Note:
+        Uses top left corner convention for tile position.
 
     Args:
         x (int): x-axis location to place Platform.
@@ -44,31 +47,62 @@ def build_platform(x, y, size, length, platform_group):
         size (tuple[int, int]): Tuple[width, height] of Platform tile size.
         length (int): Length of Platform.
         platform_group (pygame.sprite.Group): pygame.sprite.Group for Platform Sprites.
-        screen (pygame.Surface): pygame.Surface of game screen.
-        speed (int): Speed of MovingPlatform. Defaults to 0 (static Platform).
 
     """
     platform_width = size[0]
+    # create left, center, and right platforms along the length of the platform
     for i in range(x + platform_width, x + length - platform_width, platform_width):
         platform_group.add(Platform(i, y, size, 'center'))
     platform_group.add(Platform(x, y, size, 'left'))
     platform_group.add(Platform(x + length - platform_width, y, size, 'right'))
 
 
-def mv_platform(x, y, size, length, platform_group, speed, move_time, direction):
+def moving_platform(x, y, size, length, platform_group, speed, move_time, direction):
+    """Builds MovingPlatform of given `length`, `speed`, `move_time`, and `direction`.
+
+        This function creates multiple Platform Sprites to take up a given horizontal length and adds it to the given
+        `platform_group`.
+
+        Note:
+            Uses top left corner convention for tile position.
+
+        Args:
+            x (int): x-axis location to place MovingPlatform.
+            y (int): y-axis location to place MovingPlatform.
+            size (tuple[int, int]): Tuple[width, height] of MovingPlatform tile size.
+            length (int): Length of MovingPlatform.
+            platform_group (pygame.sprite.Group): pygame.sprite.Group for MovingPlatform Sprites.
+            speed (int): speed of MovingPlatform.
+            move_time (int): time MovingPlatform moves in one direction in milliseconds.
+            direction (str): String('left' or 'right') of starting moving direction.
+
+        """
     platform_width = size[0]
+    # create left, center, and right platforms along the length of the platform
+    # the -15 accounts for error within the in game time changes
     for i in range(x + platform_width - 15, x + length - platform_width, platform_width - 15):
         platform_group.add(MovingPlatform(i, y, size, 'center', speed, move_time, direction))
     platform_group.add(MovingPlatform(x, y, size, 'left', speed, move_time, direction))
     platform_group.add(MovingPlatform(x + length - platform_width, y, size, 'right', speed, move_time, direction))
 
 
-def calc_length(length, speed, move_time):
-    moving_length = length + speed * 60 * (move_time / 1000)
+def calc_length(length, speed, move_time, fps):
+    """
+
+    Args:
+        length ():
+        speed ():
+        move_time ():
+        fps ():
+
+    Returns:
+
+    """
+    moving_length = length + speed * fps * (move_time / 1000)
     return int(moving_length)
 
 
-def build_game(size, platform_group, screen):
+def build_game(size, platform_group, screen, fps):
     screen_width = screen.get_width()
     screen_height = screen.get_height()
     platform_width = size[0]
@@ -79,31 +113,31 @@ def build_game(size, platform_group, screen):
         count = 0
         while 0 <= count < screen_width:
             spacing = randrange(50, 100, 5)
-            speed = int(triangular(0, 3, 0))
+            speed = int(triangular(0, 2))
             # moving_time = 1700
             moving_time = randrange(700, 1700, 50)
             direction = choice(['right', 'left'])
             if round(triangular(0, 1, 0.75)) and first_plat:
                 length = round(normalvariate(200, 100))
                 length = 50 if length < 50 else 400 if length > 400 else length
-                build_platform(0 - platform_width, y, size, length, platform_group)
+                static_platform(0 - platform_width, y, size, length, platform_group)
                 count += length - platform_width
             else:
-                if speed and not was_moving:
+                if speed and not was_moving and not first_plat:  # first plat shouldn't move
                     length = round(normalvariate(100, 20))
                     length = 50 if length < 50 else 150 if length > 150 else length
-                    moving_length = calc_length(length, speed, moving_time // speed)
+                    moving_length = calc_length(length, speed, moving_time // speed, fps)
                     if count + moving_length > screen_width:
-                        build_platform(count + spacing, y, size, length, platform_group)
+                        static_platform(count + spacing, y, size, length, platform_group)
                         count += spacing + length
                         continue
                     spacing = 10
                     was_moving = True
                     if direction == 'right':
-                        mv_platform(count + spacing, y, size, length, platform_group, speed, moving_time // speed,
+                        moving_platform(count + spacing, y, size, length, platform_group, speed, moving_time // speed,
                                     direction)
                     else:
-                        mv_platform(count + spacing + moving_length - length, y, size, length, platform_group, speed,
+                        moving_platform(count + spacing + moving_length - length, y, size, length, platform_group, speed,
                                     moving_time // speed, direction)
                     length = moving_length
                 else:
@@ -112,10 +146,19 @@ def build_game(size, platform_group, screen):
                         was_moving = False
                     length = round(normalvariate(200, 100))
                     length = 50 if length < 50 else 400 if length > 400 else length
-                    build_platform(count + spacing, y, size, length, platform_group)
+                    static_platform(count + spacing, y, size, length, platform_group)
                 count += spacing + length
-                print(direction)
             first_plat = False
+
+
+def spawn_collectible(screen, size, collectible_group):
+    screen_width = screen.get_width()
+    screen_height = screen.get_height()
+    platform_width = size[0]
+    platform_height = size[1]
+    x = randrange(0, screen_width - platform_width, 50)
+    y = randrange(screen_height - platform_height * 2, 0, -100)
+    collectible_group.add(Collectible(x, y))
 
 
 def display_winner(screen, player1, player2, font_size):

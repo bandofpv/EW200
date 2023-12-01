@@ -15,7 +15,8 @@ class Timer:
         self.rect.midtop = screen.get_rect().midtop
         self.start_time = pygame.time.get_ticks()
         self.time = pygame.time.get_ticks()
-        self.game_time = game_time * 1000
+        self.timer = 0
+        self.game_time = (game_time + 1) * 1000  # adds one second to account for delayed game initialization
         self.screen = screen
         self.play = True
         self.color = 'white'
@@ -23,16 +24,20 @@ class Timer:
     def update(self):
         """Updates the remaining time left in game.
 
+        Given the `game_time` in seconds, this function will count down the text to zero. The font will change from
+        white to red for the last ten seconds left in game. Once the time runs outs, the game will end.
+
         """
-        timer = (self.game_time + self.start_time) - self.time
-        if timer > 0:
+        self.timer = (self.game_time + self.start_time) - self.time  # calculate remaining time in game
+        if self.timer > 0:  # update the timer if there is remaining time
             self.time = pygame.time.get_ticks()
             self.color = 'white'
-            if timer < 11000:
+            if self.timer < 11000:  # change font color to red for last 10 seconds left in game
                 self.color = 'red'
-        else:
+        else:  # if no remaining time
+            self.timer = 0
             self.play = False
-        self.text = self.game_font.render(str(int(timer/1000)), 1, self.color)
+        self.text = self.game_font.render(str(self.timer//1000), 1, self.color)
         self.rect = self.text.get_rect()
         self.rect.midtop = self.screen.get_rect().midtop
 

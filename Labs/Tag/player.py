@@ -67,17 +67,8 @@ class Player(pygame.sprite.Sprite):
                 self.jumpvelocity = -16
                 self.collide_timer = current_time
                 self.image = self.it_body
-        # elif opponent_collide and self.it and (current_time - self.collide_timer) > 3000:
-        #     self.it = False
-        #     self.pause = False
-        #     self.speed = 3
-        #     self.collide_timer = current_time
         if (current_time - self.collide_timer) > 3000:
             self.pause = False
-        # if self.it:
-        #     self.image = self.it_body
-        # else:
-        #     self.image = self.body
         top_collide = self.calc_collision(0, self.yvelocity, platform_group)
         bottom_collide = self.calc_collision(0, self.fallvelocity, platform_group)
         right_collide = self.calc_collision(self.speed, 0, platform_group)
@@ -98,22 +89,23 @@ class Player(pygame.sprite.Sprite):
             self.yvelocity += self.jumpvelocity
         elif self.yvelocity < self.fallvelocity and not bottom_collide:
             self.yvelocity += 1
-        if self.yvelocity > 0 and bottom_collide:
+        if self.yvelocity > 0 and bottom_collide and not (right_collide or left_collide):
             self.rect.bottom = bottom_collide.rect.top
             self.yvelocity = 0
-        if bottom_collide:
+        if bottom_collide and right_collide and left_collide:
+            self.yvelocity += 1
+        if bottom_collide and not (right_collide or left_collide):
             self.xvelocity += bottom_collide.xvelocity
-        if self.yvelocity < 0 and top_collide:
+        if (self.yvelocity < 0 and top_collide) and not (right_collide or left_collide):
             self.rect.top = top_collide.rect.bottom
             self.yvelocity = 0
         if self.pause:
             self.xvelocity = 0
             self.yvelocity = 0
         self.rect.move_ip(self.xvelocity, self.yvelocity)
-
-        collectable = pygame.sprite.spritecollideany(self, collectable_group)
-        if collectable and not self.it:
-            collectable.kill()
+        collectable_collide = pygame.sprite.spritecollideany(self, collectable_group)
+        if collectable_collide and not self.it:
+            collectable_collide.collected = True
             self.collected = True
             self.speed = 5
             self.jumpvelocity = -17
