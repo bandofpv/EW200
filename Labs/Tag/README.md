@@ -31,4 +31,4 @@ As such, the goal of the runner to collect powerups which spawn **randomly** thr
 
 Powerups give speed and jump bonuses that even **trump** that of the *it* player! 
 
-Pro Tip: try jumping along the sides of platforms :joy:
+Pro Tip: try jumping along the sides of platforms :blush:
