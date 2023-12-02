@@ -29,12 +29,14 @@ class Timer:
 
         """
         self.timer = (self.game_time + self.start_time) - self.time  # calculate remaining time in game
-        if self.timer > 0:  # update the timer if there is remaining time
+        # update the timer if there is remaining time
+        if self.timer > 0:
             self.time = pygame.time.get_ticks()
             self.color = 'white'
             if self.timer < 11000:  # change font color to red for last 10 seconds left in game
                 self.color = 'red'
-        else:  # if no remaining time
+        # if no remaining time
+        else:
             self.timer = 0
             self.play = False
         self.text = self.game_font.render(str(self.timer//1000), 1, self.color)

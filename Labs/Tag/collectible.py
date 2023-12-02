@@ -35,11 +35,14 @@ class Collectible(pygame.sprite.Sprite):
         """
         self.image.set_alpha(self.alpha)  # set the transparency of the Collectible
         self.time = pygame.time.get_ticks()
-        if not self.spawned:  # spawn in the Collectible if not spawned
+        # spawn in the Collectible if not spawned
+        if not self.spawned:
             self.spawn()
-        if self.time - self.start_time > longevity * 1000:  # fade Collectible away when it expires
+        # fade Collectible away when it expires
+        if self.time - self.start_time > longevity * 1000:
             self.die()
-        if self.collected:  # kill the Collectible if Player collects it
+        # kill the Collectible if Player collects it
+        if self.collected:
             self.kill()
 
     def spawn(self):
@@ -47,7 +50,8 @@ class Collectible(pygame.sprite.Sprite):
 
         """
         self.alpha += 5
-        if self.alpha >= 255:  # update spawned status once fully visible
+        # update spawned status once fully visible
+        if self.alpha >= 255:
             self.spawned = True
 
     def die(self):
@@ -55,7 +59,8 @@ class Collectible(pygame.sprite.Sprite):
 
         """
         self.alpha -= 1
-        if self.alpha <= 0:  # kill Collectible after fading away
+        # kill Collectible after fading away
+        if self.alpha <= 0:
             self.kill()
 
     def draw(self, screen):

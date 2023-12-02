@@ -127,7 +127,8 @@ def build_game(size, platform_group, screen, fps, pro):
         first_plat = True
         was_moving = False
         count = 0
-        while 0 <= count < screen_width:  # loop along length of screen
+        # loop along length of screen
+        while 0 <= count < screen_width:
             spacing = randrange(50, 100, 5)  # randomize platform spacing
             speed = int(triangular(0, 2)) if pro else 0  # randomize speed if pro difficulty
             moving_time = randrange(700, 1700, 50)  # randomize moving_time for a moving platform
@@ -139,7 +140,8 @@ def build_game(size, platform_group, screen, fps, pro):
                 static_platform(0 - platform_width, y, size, length, platform_group)
                 count += length - platform_width
             else:
-                if speed and not was_moving and not first_plat:  # first platform shouldn't move
+                # first platform shouldn't move
+                if speed and not was_moving and not first_plat:
                     length = round(normalvariate(100, 20))  # randomize length of moving platform
                     length = 50 if length < 50 else 150 if length > 150 else length  # cap length between 50 and 150
                     moving_length = calc_length(length, speed, moving_time // speed, fps)
@@ -150,14 +152,16 @@ def build_game(size, platform_group, screen, fps, pro):
                         continue
                     spacing = platform_width + 1  # set a short spacing for a moving platform
                     was_moving = True
-                    if direction == 'right':  # set direction of moving platform
+                    # set direction of moving platform
+                    if direction == 'right':
                         moving_platform(count + spacing, y, size, length, platform_group, speed, moving_time // speed,
                                         direction)
                     else:
                         moving_platform(count + spacing + moving_length - length, y, size, length, platform_group,
                                         speed, moving_time // speed, direction)
                     length = moving_length
-                else:  # if platform doesn't have a speed, create a static platform
+                # if platform doesn't have a speed, create a static platform
+                else:
                     # if previous platform (platform to the left) is a moving platform, shorten spacing
                     if was_moving:
                         spacing = platform_width + 1

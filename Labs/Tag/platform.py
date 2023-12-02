@@ -77,12 +77,14 @@ class MovingPlatform(pygame.sprite.Sprite):
         self.time = pygame.time.get_ticks()
         if self.direction == 'right':
             self.move_right()
-            if self.time - self.start_time > self.move_time:  # after moving for set move_time, change direction
+            # after moving for set move_time, change direction
+            if self.time - self.start_time > self.move_time:
                 self.direction = 'left'
                 self.start_time = self.time
         else:
             self.move_left()
-            if self.time - self.start_time > self.move_time:  # after moving for set move_time, change direction
+            # after moving for set move_time, change direction
+            if self.time - self.start_time > self.move_time:
                 self.direction = 'right'
                 self.start_time = self.time
 
