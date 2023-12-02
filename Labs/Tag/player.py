@@ -125,8 +125,8 @@ class Player(pygame.sprite.Sprite):
             self.speed = 5
             self.jumpvelocity = -17
             self.collectable_timer = current_time
-        # after 3 seconds from collecting a collectible, reset speed and jump
-        if self.collected and (current_time - self.collectable_timer) > 3000:
+        # after 5 seconds from collecting a collectible, reset speed and jump
+        if self.collected and (current_time - self.collectable_timer) > 5000:
             self.collected = False
             self.speed = 3
             self.jumpvelocity = -15

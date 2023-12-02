@@ -11,8 +11,8 @@ WIDTH = 1080  # screen width
 HEIGHT = 620  # screen height
 
 # comment out either screen initializations to set manual size or full screen
-screen = pygame.display.set_mode((WIDTH, HEIGHT))  # create screen surface
-# screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+# screen = pygame.display.set_mode((WIDTH, HEIGHT))  # create screen surface
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 # game constants
 BLOCK_SIZE = (25, 25)
@@ -113,6 +113,13 @@ while running:
 
         # if game is over
         else:
+            # clean up
+            player1.kill()
+            player2.kill()
+            [platform.kill() for platform in platforms]
+            [collectible.kill() for collectible in collectibles]
+
+            # display play again menu
             pygame.mouse.set_visible(True)  # show cursor
             # if pressed on "novice" button, play game on novice mode
             if small_novice_button.click(game_events, 1.1, 'green'):
@@ -126,6 +133,7 @@ while running:
             # quit game if quit button clicked
             if quit_button.click(game_events, font_color='red'):
                 running = False
+
             # play again
             if play:
                 it = choice([True, False])  # randomize which player is it
@@ -141,12 +149,6 @@ while running:
                 build_game(BLOCK_SIZE, platforms, screen, FPS, pro)
                 game_timer = Timer(GAME_TIME, screen)
                 show_cursor = False  # hide cursor
-
-            # clean up
-            player1.kill()
-            player2.kill()
-            [platform.kill() for platform in platforms]
-            [collectible.kill() for collectible in collectibles]
 
     pygame.display.flip()  # display game
     clock.tick(FPS)  # set fps
