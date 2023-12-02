@@ -43,8 +43,8 @@ class MovingPlatform(pygame.sprite.Sprite):
             y (int): y-axis location of MovingPlatform Sprite.
             size (tuple[int, int]): Tuple[width, height] of MovingPlatform tile size.
             side (str): String ('center', 'left', or 'right') of MovingPlatform tile side.
-            speed (int): speed of MovingPlatform Sprite.
-            move_time (int): time MovingPlatform Sprite moves in one direction in milliseconds.
+            speed (int): Speed of MovingPlatform Sprite.
+            move_time (int): Time MovingPlatform Sprite moves in one direction in milliseconds.
             direction (str): String('left' or 'right') of starting moving direction.
         """
         super().__init__()

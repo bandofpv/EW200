@@ -1,6 +1,3 @@
-# TODO: Finish update and calc_collision descriptions
-
-
 import pygame
 
 
@@ -19,24 +16,25 @@ class Player(pygame.sprite.Sprite):
         """
         super().__init__()
         self.color = color
-        self.it = it
         self.it_body = pygame.image.load(f'assets/images/{self.color}_it_body.png')
         self.it_body = pygame.transform.smoothscale(self.it_body, size)
         self.body = pygame.image.load(f'assets/images/{self.color}_body.png')
         self.body = pygame.transform.smoothscale(self.body, size)
         self.image = self.body
-        self.pause = False
-        self.speed = 3
         self.rect = self.image.get_rect()
+        self.right_key, self.left_key, self.up_key = keys
+        self.it = it
         self.rect.center = (x, y)
         self.collide_timer = pygame.time.get_ticks()
         self.collectable_timer = pygame.time.get_ticks()
+        # set default player values
+        self.pause = False
+        self.speed = 3
         self.collected = False
         self.xvelocity, self.yvelocity = 0, 0
-        self.right_key, self.left_key, self.up_key = keys
         self.jumpvelocity = -15
         self.fallvelocity = 10
-        if self.it:
+        if self.it:  # if player is it, change image and speed
             self.image = self.it_body
             self.pause = True
             self.speed = 4
@@ -45,71 +43,77 @@ class Player(pygame.sprite.Sprite):
     def update(self, platform_group, opponent, collectable_group):
         """Updates Player location.
 
+        This function incorporates both the collision and physics algorithm used for the Player Sprite. Collisions are
+        calculated for Player to Player, Player to Platform, and Player to Collectible.
+
         Args:
             platform_group (pygame.sprite.Group): pygame.sprite.Group for Platform Sprites.
             opponent (Player): Player instance for opponent. 
-            collectable_group (pygame.sprite.Group): pygame.sprite.Group for Collectable Sprites.
+            collectable_group (pygame.sprite.Group): pygame.sprite.Group for Collectible Sprites.
         """
+        # check if player collides with another player
         opponent_collide = pygame.Rect.colliderect(self.rect, opponent.rect)
         current_time = pygame.time.get_ticks()
+        # if player collides with another player and it player is no longer frozen
         if opponent_collide and (current_time - self.collide_timer) > 3000:
-            if self.it:
+            if self.it:  # if it, change status to not it
                 self.it = False
                 self.pause = False
                 self.speed = 3
                 self.jumpvelocity = -15
                 self.collide_timer = current_time
                 self.image = self.body
-            else:
+            else:  # if not it, change status to it and freeze
                 self.it = True
                 self.pause = True
                 self.speed = 4
                 self.jumpvelocity = -16
                 self.collide_timer = current_time
                 self.image = self.it_body
-        if (current_time - self.collide_timer) > 3000:
+        if (current_time - self.collide_timer) > 3000:  # unfreeze it player after 3 seconds
             self.pause = False
+        # check collisions on all four sides of player
         top_collide = self.calc_collision(0, self.yvelocity, platform_group)
         bottom_collide = self.calc_collision(0, self.fallvelocity, platform_group)
         right_collide = self.calc_collision(self.speed, 0, platform_group)
         left_collide = self.calc_collision(-self.speed, 0, platform_group)
         self.xvelocity = 0
         key = pygame.key.get_pressed()
-        if key[self.left_key]:
-            if left_collide and self.yvelocity == 0:
+        if key[self.left_key]:  # if left key was pressed
+            if left_collide and self.yvelocity == 0:  # if left collision, snap to right side of platform
                 self.rect.left = left_collide.rect.right
-            elif not left_collide:
+            elif not left_collide:  # if no left collision, move left
                 self.xvelocity -= self.speed
-        if key[self.right_key]:
-            if right_collide and self.yvelocity == 0:
+        if key[self.right_key]:  # if right key was pressed
+            if right_collide and self.yvelocity == 0:  # if right collision, snap to left side of platform
                 self.rect.right = right_collide.rect.left
-            elif not right_collide:
+            elif not right_collide:  # if no right collision, move right
                 self.xvelocity += self.speed
-        if key[self.up_key] and self.yvelocity == 0 and bottom_collide:
+        if key[self.up_key] and self.yvelocity == 0 and bottom_collide:  # if up key pressed and on ground, jump
             self.yvelocity += self.jumpvelocity
-        elif self.yvelocity < self.fallvelocity and not bottom_collide:
+        elif self.yvelocity < self.fallvelocity and not bottom_collide:  # if in the air, fall
             self.yvelocity += 1
-        if self.yvelocity > 0 and bottom_collide and not (right_collide or left_collide):
-            self.rect.bottom = bottom_collide.rect.top
-            self.yvelocity = 0
-        if bottom_collide and right_collide and left_collide:
-            self.yvelocity += 1
-        if bottom_collide and not (right_collide or left_collide):
-            self.xvelocity += bottom_collide.xvelocity
-        if (self.yvelocity < 0 and top_collide) and not (right_collide or left_collide):
+        elif bottom_collide:  # if on ground
+            self.rect.bottom = bottom_collide.rect.top  # snap to ground
+            self.yvelocity = 0  # stop falling
+            self.xvelocity += bottom_collide.xvelocity  # set xvelocity to xvelocity of touching platform
+        if self.yvelocity < 0 and top_collide:  # if in air and top collides, snap to top and stop going up
             self.rect.top = top_collide.rect.bottom
             self.yvelocity = 0
-        if self.pause:
+        if self.pause:  # if player is paused (just got tagged), stop in place
             self.xvelocity = 0
             self.yvelocity = 0
-        self.rect.move_ip(self.xvelocity, self.yvelocity)
+        self.rect.move_ip(self.xvelocity, self.yvelocity)  # move player based on x and y velocities
+        # check collision with collectibles
         collectable_collide = pygame.sprite.spritecollideany(self, collectable_group)
+        # if player collides with collectible and is not it, give player speed and jump bonus
         if collectable_collide and not self.it:
             collectable_collide.collected = True
             self.collected = True
             self.speed = 5
             self.jumpvelocity = -17
             self.collectable_timer = current_time
+        # after 3 seconds from collecting a collectible, reset speed and jump
         if self.collected and (current_time - self.collectable_timer) > 3000:
             self.collected = False
             self.speed = 3
@@ -118,7 +122,7 @@ class Player(pygame.sprite.Sprite):
     def calc_collision(self, x, y, platform_group):
         """Predicts future collisions.
         
-        Accepts `x` and `y`
+        Accepts `x` and `y` velocities to move a ghost Player to check a collision one frame before the visible Player.
 
         Args:
             x (int): Displacement of ghost Player along the x-axis.
@@ -130,10 +134,10 @@ class Player(pygame.sprite.Sprite):
                 no collision.
 
         """
-        self.rect.move_ip((x, y))
-        collide = pygame.sprite.spritecollideany(self, platform_group)
-        self.rect.move_ip((-x, -y))
-        return collide
+        self.rect.move_ip((x, y))  # move the Player
+        collide = pygame.sprite.spritecollideany(self, platform_group)  # check collision
+        self.rect.move_ip((-x, -y))  # move Player back
+        return collide  # returns Sprite of Platform if collision
 
     def draw(self, screen):
         """Draws the Player Sprite on the `screen` Surface.

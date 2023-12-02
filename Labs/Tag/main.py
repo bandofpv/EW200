@@ -19,7 +19,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))  # create screen surface
 
 block_size = (25, 25)
 fps = 60
-game_time = 5
+game_time = 60
 spawn_interval = 5
 longevity = 10
 
@@ -41,11 +41,14 @@ play = True
 started = False
 show_cursor = False
 spawned = False
+pro = False
 
-start_button = Button(screen.get_rect().center, 'Play', 140, 'white', screen)
-play_again_button = Button(screen.get_rect().center, 'Play Again', 120, 'white', screen)
 screen_centerx, screen_centery = screen.get_rect().centerx, screen.get_rect().centery
-quit_button = Button((screen_centerx, screen_centery + 145), 'Quit', 80, 'white', screen)
+big_novice_button = Button((screen_centerx, screen_centery), 'Novice', 110, 'green', screen)
+big_pro_button = Button((screen_centerx, screen_centery + 140), 'Pro', 110, 'red', screen)
+small_novice_button = Button((screen_centerx, screen_centery - 60), 'Novice', 100, 'white', screen)
+small_pro_button = Button((screen_centerx, screen_centery + 60), 'Pro', 100, 'white', screen)
+quit_button = Button((screen_centerx, screen_centery + 170), 'Quit', 60, 'white', screen)
 
 while running:
 
@@ -60,10 +63,16 @@ while running:
             running = False
 
     if not started:
-        started = start_button.click(game_events, 1.1)
+        start_text(screen, 120)
+        if big_novice_button.click(game_events, 1.1, 'green'):
+            started = True
+            pro = False
+        elif big_pro_button.click(game_events, 1.1, 'red'):
+            started = True
+            pro = True
         if started:
             build_border(screen, block_size, platforms)
-            build_game(block_size, platforms, screen, fps)
+            build_game(block_size, platforms, screen, fps, pro)
             game_timer = Timer(game_time, screen)
 
     else:
@@ -93,8 +102,14 @@ while running:
 
         else:
             pygame.mouse.set_visible(True)
-            play = play_again_button.click(game_events, 1.05)
-            display_winner(screen, player1, player2, 120)
+            if small_novice_button.click(game_events, 1.1, 'green'):
+                play = True
+                pro = False
+            elif small_pro_button.click(game_events, 1.1, 'red'):
+                play = True
+                pro = True
+            # play = play_again_button.click(game_events, 1.05)
+            display_winner(screen, player1, player2, 130)
             if quit_button.click(game_events, font_color='red'):
                 running = False
             player1.kill()
@@ -108,7 +123,7 @@ while running:
                 player2 = Player(2 * screen.get_width() // 3, screen.get_height() - 50, block_size, 'blue',
                                  arrow_keys, not it)
                 build_border(screen, block_size, platforms)
-                build_game(block_size, platforms, screen, fps)
+                build_game(block_size, platforms, screen, fps, pro)
                 game_timer = Timer(game_time, screen)
                 show_cursor = False
 
