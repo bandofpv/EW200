@@ -79,7 +79,7 @@ def moving_platform(x, y, size, length, platform_group, speed, move_time, direct
     platform_width = size[0]
     # create left, center, and right platforms along the length of the platform
     # the -15 accounts for error within the in game time changes
-    for i in range(x + platform_width - 10, x + length - platform_width - 10, platform_width - 10):
+    for i in range(x + platform_width - 10, x + length - platform_width, platform_width - 10):
         platform_group.add(MovingPlatform(i, y, size, 'center', speed, move_time, direction))
     platform_group.add(MovingPlatform(x, y, size, 'left', speed, move_time, direction))
     platform_group.add(MovingPlatform(x + length - platform_width, y, size, 'right', speed, move_time, direction))
